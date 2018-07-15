@@ -16,7 +16,7 @@ Do `brew install python3` to get Homebrew package manager
 
 Do `pip3 install pipenv` to get pipenv Python package manager and virtualenv program.
 
-`cd` into a folder in the terminal where you would like to store the project files
+In the terminal, `cd` into a folder where you would like to store the project files
 
 Do `git clone https://github.com/neuroevolutus/ACTInventoryTerminalClient.git`
 

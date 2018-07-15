@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     try:
         print("Establishing connection...")
-        engine = create_engine('mssql+pymssql://inventorymgmt:angel10!@den1.mssql5.gear.host:1433/inventorymgmt')
+        engine = create_engine('mssql+pyodbc://inventorymgmt:angel10!@ACTSERVER')
         connection = engine.connect()
         print("Connected!")
         print()

@@ -5,9 +5,9 @@ name = "pypi"
 
 [packages]
 sqlalchemy = "*"
-pyodbc = "*"
 cython = "*"
 pymssql = {git = "https://github.com/pymssql/pymssql.git"}
+pyodbc = "*"
 
 [dev-packages]
 pylint = "*"

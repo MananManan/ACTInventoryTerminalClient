@@ -7,7 +7,7 @@ if __name__ == "__main__":
     s = text(
         "SELECT * FROM VOLUNTEER"
     )
-    result =connection.execute(s).fetchall()
+    result = connection.execute(s).fetchall()
     for item in result:
         print(item)
     connection.close()

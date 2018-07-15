@@ -14,6 +14,8 @@ Have unixobdc installed on Mac
 
 Do `brew install python3` to get Homebrew package manager
 
+Do `brew install unixodbc` to get Unix database drivers
+
 Do `pip3 install pipenv` to get pipenv Python package manager and virtualenv program.
 
 In the terminal, `cd` into a folder where you would like to store the project files

@@ -22,7 +22,7 @@ In the terminal, `cd` into a folder where you would like to store the project fi
 
 Do `git clone https://github.com/neuroevolutus/ACTInventoryTerminalClient.git`
 
-Run `pipenv install`
+Run `pipenv install --ignore-pipfile`
 
 Type `pipenv shell` to start the virtual environment (venv) shell
 

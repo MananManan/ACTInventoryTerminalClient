@@ -12,7 +12,7 @@ Have unixobdc installed on Mac
 
 ### Mac
 
-Do `brew install python3` to get Homebrew package manager
+Do `brew install python3` to get Python 3 and pip
 
 Do `brew install unixodbc` to get Unix database drivers
 

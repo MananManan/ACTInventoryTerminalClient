@@ -75,8 +75,11 @@ def run_query(connection):
 def repl(connection):
 
     choice = -1
+    hasDoneSomething = False
 
     while choice != 3:
+        if hasDoneSomething:
+            print('-' * 110)
         show_menu()
         print()
 
@@ -88,6 +91,7 @@ def repl(connection):
             continue
 
         print()
+        hasDoneSomething = True
 
         if choice == 1:
             view_table(connection)

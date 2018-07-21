@@ -27,7 +27,7 @@ def show_menu():
     for (i, item) in enumerate(opts):
         print(f"\t{i+1}. {item}")
 
-def select_all_from_table(message, connection):
+def select_table(message, connection):
 
     choice = -1
     while choice < 1 or choice > num_tables:
@@ -54,15 +54,37 @@ def select_all_from_table(message, connection):
             print("Please enter a valid number")
             print()
 
+    return choice
+
+def view_table(connection):
+
+    choice = select_table("Which table would you like to view?", connection)
+ 
     q = text(
         f"SELECT * FROM {table_names[choice - 1]}"
     )
 
-    results = connection.execute(q)
-    return results
+    results = connection.execute(q)   
+    cols = results.keys()
+    results = results.fetchall()
 
-def view_table(connection):
-    results = select_all_from_table("Which table would you like to view?", connection)
+    print(', '.join(cols))
+    print()
+
+    for result in enumerate(results):
+        print(result)
+
+    return choice
+
+def delete_from_table(connection):
+
+    choice = select_table("Which table would you like to delete from?", connection)
+
+    q = text(
+        f"SELECT * FROM {table_names[choice - 1]}"
+    )
+
+    results = connection.execute(q)   
     cols = results.keys()
     results = results.fetchall()
 
@@ -70,6 +92,9 @@ def view_table(connection):
     print()
     for result in results:
         print(result)
+
+    print()
+
 
 def run_query(connection):
     # TODO

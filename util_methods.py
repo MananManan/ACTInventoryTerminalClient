@@ -1,4 +1,5 @@
 from sqlalchemy.sql import text
+from functools import partial
 
 # Global vars
 options = ["View a table", "Run another query", "Quit"]
@@ -26,12 +27,12 @@ def show_menu():
     for (i, item) in enumerate(opts):
         print(f"\t{i+1}. {item}")
 
-def view_table(connection):
+def select_all_from_table(message, connection):
 
     choice = -1
     while choice < 1 or choice > num_tables:
 
-        print("Which table would you like to view?")
+        print(message)
         print()
 
         for (i, table) in enumerate(table_names):
@@ -58,6 +59,10 @@ def view_table(connection):
     )
 
     results = connection.execute(q)
+    return results
+
+def view_table(connection):
+    results = select_all_from_table("Which table would you like to view?", connection)
     cols = results.keys()
     results = results.fetchall()
 

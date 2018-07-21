@@ -21,7 +21,6 @@ def init_app(connection):
 def show_menu():
 
     opts = options
-    n = len(opts)
 
     print("What would you like to do?")
     for (i, item) in enumerate(opts):

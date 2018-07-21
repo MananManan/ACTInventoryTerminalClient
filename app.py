@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from util_methods import *
+from util_methods import init_app, repl
 
 if __name__ == "__main__":
     

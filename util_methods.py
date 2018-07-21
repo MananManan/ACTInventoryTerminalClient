@@ -1,4 +1,5 @@
 from sqlalchemy.sql import text
+from sqlalchemy.exc import ProgrammingError
 from functools import partial
 
 # Global vars
@@ -71,7 +72,7 @@ def view_table(connection):
     print(', '.join(cols))
     print()
 
-    for result in enumerate(results):
+    for result in results:
         print(result)
 
     return choice

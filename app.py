@@ -16,5 +16,10 @@ if __name__ == "__main__":
         repl(connection)
 
     finally:
+        print("Making sure connection is closed...")
+
         if connection != None:
             connection.close()
+            print("Connection closed.")
+
+        print("Thanks for using the query tool!")

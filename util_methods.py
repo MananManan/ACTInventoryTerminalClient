@@ -18,6 +18,17 @@ def init_app(connection):
     )
     result = connection.execute(q).fetchall()
     table_names = [item[0] for item in result]
+    q = text(
+        "SELECT ColumnName = col.column_name" 
+        "FROM information_schema.table_constraints tc"
+        "INNER JOIN information_schema.key_column_usage col"
+        "ON col.Constraint_Name = tc.Constraint_Name"
+        "AND col.Constraint_schema = tc.Constraint_schema"
+        "WHERE tc.Constraint_Type = 'Primary Key' AND col.Table_name = '" 
+        f"table_names[0]"
+        "'" 
+    )
+    primary_keys = connection.execute(q).fetchall()
     num_tables = len(table_names)
 
 def show_menu():
@@ -132,5 +143,3 @@ def repl(connection):
         elif choice > 3 or choice < 1:
             print("Please enter a valid number.")
             print()
-
-    print("Thanks for using the query tool!")

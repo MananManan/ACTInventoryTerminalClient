@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-from tests.util_methods import *
+from CmdDatabaseClient.util_methods import *
 
 def make_English_list():
     assert format_into_English_list(["Abel"]) == "Abel"

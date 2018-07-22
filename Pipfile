@@ -11,6 +11,7 @@ pymssql = {git = "https://github.com/pymssql/pymssql.git"}
 
 [dev-packages]
 pylint = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.6"

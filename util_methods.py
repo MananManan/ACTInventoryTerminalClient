@@ -16,19 +16,36 @@ def init_app(connection):
     q = text(
         "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
     )
+
     result = connection.execute(q).fetchall()
     table_names = [item[0] for item in result]
+    primary_keys = dict()
+
+    for name in table_names:
+        primary_keys[name] = []
+
     q = text(
-        "SELECT ColumnName = col.column_name" 
-        "FROM information_schema.table_constraints tc"
-        "INNER JOIN information_schema.key_column_usage col"
-        "ON col.Constraint_Name = tc.Constraint_Name"
-        "AND col.Constraint_schema = tc.Constraint_schema"
-        "WHERE tc.Constraint_Type = 'Primary Key' AND col.Table_name = '" 
-        f"table_names[0]"
-        "'" 
+        "SELECT\n"
+            "A.TABLE_NAME,\n"
+            "A.CONSTRAINT_NAME,\n" 
+            "B.COLUMN_NAME,\n"
+            "CONSTRAINT_TYPE\n"
+        "FROM\n"
+            "INFORMATION_SCHEMA.TABLE_CONSTRAINTS A,\n"
+            "INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE B\n"
+        "WHERE\n" 
+            "A.CONSTRAINT_NAME = B.CONSTRAINT_NAME\n"
+        "ORDER BY\n"
+            "A.TABLE_NAME\n"
     )
-    primary_keys = connection.execute(q).fetchall()
+
+    results = connection.execute(q).fetchall()
+
+    for result in results:
+        key_type = result[3].lower()
+        if key_type.find("primary") != -1:
+            primary_keys[result[0]].append(result[2])
+
     num_tables = len(table_names)
 
 def show_menu():
@@ -38,6 +55,12 @@ def show_menu():
     print("What would you like to do?")
     for (i, item) in enumerate(opts):
         print(f"\t{i+1}. {item}")
+
+def format_into_English_list(lst):
+    if len(lst) < 3:
+        return " and ".join(lst)
+    else:
+        return ", ".join(lst[:-1]) + " and " + lst[-1]
 
 def select_table(message, connection):
 

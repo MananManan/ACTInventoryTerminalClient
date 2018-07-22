@@ -22,4 +22,5 @@ if __name__ == "__main__":
             connection.close()
             print("Connection closed.")
 
+        print()
         print("Thanks for using the query tool!")

@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 sqlalchemy = "*"
 cython = "*"
-pymssql = {git = "https://github.com/pymssql/pymssql.git"}
 pyodbc = "*"
 
 [dev-packages]

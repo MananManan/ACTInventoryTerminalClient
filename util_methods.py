@@ -231,6 +231,7 @@ def modify_table(connection):
     
     queryText += " 0=0 "
           
+    print(queryText)
       
     transaction = connection.begin()
     try:

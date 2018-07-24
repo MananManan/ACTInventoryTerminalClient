@@ -13,8 +13,8 @@ if __name__ == "__main__":
         print("Connected!")
         print()
 
-        init_app(connection, engine)
-        repl(connection, engine)
+        init_app(connection)
+        repl(connection)
 
     finally:
         print("Making sure connection is closed...")

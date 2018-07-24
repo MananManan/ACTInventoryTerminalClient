@@ -12,7 +12,7 @@ num_tables = None
 primary_keys = dict() #initialize an empty dictionary
 
 
-def init_app(connection, engine): # this was the method being called from app.py
+def init_app(connection): # this was the method being called from app.py
     global table_names
     global num_tables
 
@@ -60,6 +60,7 @@ def show_menu():
     opts = options
 
     print("What would you like to do?")
+    print()
     for (i, item) in enumerate(opts):
         print("\t" + str(i+1)+ ")" + str(item))
 
@@ -72,7 +73,7 @@ def format_into_English_list(lst):
 def select_table(message, connection):
 
     choice = -1
-    while choice < 1 or choice > num_tables:
+    while choice < 0 or choice > num_tables:
 
         print(message)
         print()
@@ -81,10 +82,10 @@ def select_table(message, connection):
             print("\t", end = '', flush = True)
             print(str(i+1).ljust(4), end = '', flush = True)
             print(str(table))
-
+        print("\t" + "0".ljust(4) + "Go Back")
         print()
         try:
-            choice = int(input("Please select a number between 1 and " + str(num_tables) + ":")) 
+            choice = int(input("Please select a number between 1 and " + str(num_tables) + ": ")) 
         except:
             print("Please enter a valid number")
             print()
@@ -92,7 +93,7 @@ def select_table(message, connection):
 
         print()
 
-        if choice > num_tables or choice < 1:
+        if choice > num_tables or choice < 0:
             print("Please enter a valid number")
             print()
 
@@ -101,7 +102,10 @@ def select_table(message, connection):
 def view_table(connection):
 
     choice = select_table("Which table would you like to view?", connection)
- 
+
+    if choice == 0:
+        return
+    
     q = text(
         "SELECT * FROM " + str(table_names[choice - 1])
     )
@@ -115,6 +119,9 @@ def view_table(connection):
 def delete_from_table(connection):
     choice = select_table("Which table would you like to insert into?", connection)
 
+    if choice == 0:
+        return
+    
     q = text(
         "SELECT * FROM " + str(table_names[choice-1])
         )
@@ -158,9 +165,12 @@ def delete_from_table(connection):
     
     return choice
 
-def insert_into_table(connection, engine):
+def insert_into_table(connection):
     choice = select_table("Which table would you like to insert into?", connection)
 
+    if choice == 0:
+        return
+    
     q = text(
         "SELECT * FROM " + str(table_names[choice-1])
         )
@@ -192,6 +202,9 @@ def modify_table(connection):
     # TODO
     choice = select_table("Which table would you like to insert into?", connection)
 
+    if choice == 0:
+        return
+    
     q = text(
         "SELECT * FROM " + str(table_names[choice-1])
         )
@@ -206,8 +219,7 @@ def modify_table(connection):
     mod_col = int(input("Enter the column you want to modify in: "))
     modification = input("Enter your modification: ")
     
-    
-    
+       
     queryText = "UPDATE " + table_names[choice-1] + " SET " + cols[mod_col-1] + "="
     
     if type(results[0][mod_col-1]) == type(0): #if ans is integer
@@ -230,9 +242,9 @@ def modify_table(connection):
         queryText += " AND "
     
     queryText += " 0=0 "
-          
-    print(queryText)
       
+    print(queryText)
+
     transaction = connection.begin()
     try:
         connection.execute(q)
@@ -248,7 +260,7 @@ def modify_table(connection):
     
     pass
 
-def repl(connection, engine):
+def repl(connection):
 
     choice = -1
     hasDoneSomething = False
@@ -256,11 +268,11 @@ def repl(connection, engine):
     while choice != len(options):
         if hasDoneSomething:
             print('-' * 110)
+            
         show_menu()
         print()
-
         try:
-            choice = int(input("Select a number between 1 and " + str(num_options) +":")) 
+            choice = int(input("Select a number between 1 and " + str(num_options) +": ")) 
         except:
             print("Please enter a valid number.")
             print()
@@ -271,16 +283,11 @@ def repl(connection, engine):
 
         if choice == 1:
             view_table(connection)
-            print()
         elif choice == 2:
-            insert_into_table(connection, engine)
-            print()        
+            insert_into_table(connection)
         elif choice == 3:
             delete_from_table(connection)
-            print()
         elif choice ==4:
             modify_table(connection)
-            print()
         elif choice > 5 or choice < 1:
             print("Please enter a valid number.")
-            print()

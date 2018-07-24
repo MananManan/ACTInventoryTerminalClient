@@ -1,27 +1,34 @@
+from tabulate import tabulate
+from sqlalchemy import *
 from sqlalchemy.sql import text
 from sqlalchemy.exc import ProgrammingError
 from functools import partial
 
 # Global vars
-options = ["View a table", "Run another query", "Quit"]
+options = ["View a table", "Insert into table", "Delete from table","Modify a table", "Quit"]
 num_options = len(options)
 table_names = []
 num_tables = None
+primary_keys = dict() #initialize an empty dictionary
 
-def init_app(connection):
-    
+
+def init_app(connection, engine): # this was the method being called from app.py
     global table_names
     global num_tables
 
+    # q stands for query
+    
     q = text(
-        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
-    )
+        "SELECT TABLE_NAME "
+        "FROM INFORMATION_SCHEMA.TABLES "
+        "WHERE TABLE_TYPE='BASE TABLE'"
+    ) # this statement is query and accesses the MSSQL's database table, basically gets all the base tables
 
-    result = connection.execute(q).fetchall()
-    table_names = [item[0] for item in result]
-    primary_keys = dict()
+    result = connection.execute(q).fetchall() #get all the table information, returns a list of tables
+    table_names = [item[0] for item in result] #iterate over the fetched tables
 
-    for name in table_names:
+
+    for name in table_names: #start filling the dictionary with the name as table name and value as empty lists, for now
         primary_keys[name] = []
 
     q = text(
@@ -37,16 +44,16 @@ def init_app(connection):
             "A.CONSTRAINT_NAME = B.CONSTRAINT_NAME\n"
         "ORDER BY\n"
             "A.TABLE_NAME\n"
-    )
+    )# see above
 
-    results = connection.execute(q).fetchall()
+    results = connection.execute(q).fetchall() #see above
 
     for result in results:
-        key_type = result[3].lower()
-        if key_type.find("primary") != -1:
-            primary_keys[result[0]].append(result[2])
+        key_type = result[3].lower() #fourth entry is the key type
+        if key_type.find("primary") != -1:#if the keytype is primary key
+            primary_keys[result[0]].append(result[2]) #add the primary key to the list returned by the dictionary
 
-    num_tables = len(table_names)
+    num_tables = len(table_names) #find out the number of tables
 
 def show_menu():
 
@@ -54,7 +61,7 @@ def show_menu():
 
     print("What would you like to do?")
     for (i, item) in enumerate(opts):
-        print(f"\t{i+1}. {item}")
+        print("\t" + str(i+1)+ ")" + str(item))
 
 def format_into_English_list(lst):
     if len(lst) < 3:
@@ -72,12 +79,12 @@ def select_table(message, connection):
 
         for (i, table) in enumerate(table_names):
             print("\t", end = '', flush = True)
-            print(f"{i+1}.".ljust(4), end = '', flush = True)
-            print(f"{table}")
+            print(str(i+1).ljust(4), end = '', flush = True)
+            print(str(table))
 
         print()
         try:
-            choice = int(input(f"Please select a number between 1 and {num_tables}: ")) 
+            choice = int(input("Please select a number between 1 and " + str(num_tables) + ":")) 
         except:
             print("Please enter a valid number")
             print()
@@ -96,59 +103,163 @@ def view_table(connection):
     choice = select_table("Which table would you like to view?", connection)
  
     q = text(
-        f"SELECT * FROM {table_names[choice - 1]}"
+        "SELECT * FROM " + str(table_names[choice - 1])
     )
-
-    results = connection.execute(q)   
+    
+    results = connection.execute(q)
     cols = results.keys()
     results = results.fetchall()
-
-    print(', '.join(cols))
-    print()
-
-    for result in results:
-        print(result)
-
+    print(tabulate(results,cols,tablefmt="pipe")) #tabulates the above things
     return choice
 
 def delete_from_table(connection):
-
-    choice = select_table("Which table would you like to delete from?", connection)
+    choice = select_table("Which table would you like to insert into?", connection)
 
     q = text(
-        f"SELECT * FROM {table_names[choice - 1]}"
-    )
+        "SELECT * FROM " + str(table_names[choice-1])
+        )
+    results = connection.execute(q)
+    cols = results.keys()
+    results = results.fetchall()
+    
+    
+    print(tabulate(results,cols,tablefmt="pipe",showindex=range(1,len(results)+1))) #tabulates the above things
+    
+    rowdel = input("Enter the row number you want to delete : ")
+    rowdel = int(rowdel)
+    queryText = "DELETE FROM " + table_names[choice-1] + " WHERE "
+    
+    #finding the length of primary key
+    primary_key = primary_keys[table_names[choice-1]]
+    
+    for k in primary_key:
+        queryText += k + "="
+        i = cols.index(k)
+        ans = results[rowdel-1][i]
+        if type(ans) == type(0): #if ans is integer
+            queryText += str(ans)
+        else:
+            queryText += "'" + ans + "'"
+        queryText += " AND "
+    
+    queryText += " 0=0 "
+    
+    transaction = connection.begin()
+    
+    q = text(queryText)
+    try:
+        connection.execute(q)
+    except Exception as e:
+        print("There was an error!")
+        print(e)
+        print("Going back to the main menu")
+    finally:
+        transaction.commit()
+    
+    return choice
 
-    results = connection.execute(q)   
+def insert_into_table(connection, engine):
+    choice = select_table("Which table would you like to insert into?", connection)
+
+    q = text(
+        "SELECT * FROM " + str(table_names[choice-1])
+        )
+    results = connection.execute(q)
     cols = results.keys()
     results = results.fetchall()
 
-    print(', '.join(cols))
-    print()
-    for result in results:
-        print(result)
+    print(tabulate(results,cols,tablefmt="pipe")) #tabulates the above things
+    insertion = input("Enter insertion in tuple format: ")
+     
+    q = text(
+        "INSERT INTO " + table_names[choice-1] + " VALUES " + insertion    
+        )
+    
+    transaction = connection.begin()
+    
+    try:
+        connection.execute(q)
+    except Exception as e:
+        print("There was an error!")
+        print(e)
+        print("Going back to the main menu")
+    finally:
+        transaction.commit()
+    
+    return choice
 
-    print()
-
-
-def run_query(connection):
+def modify_table(connection):
     # TODO
-    print("Need to add code here...")
+    choice = select_table("Which table would you like to insert into?", connection)
+
+    q = text(
+        "SELECT * FROM " + str(table_names[choice-1])
+        )
+    results = connection.execute(q)
+    cols = results.keys()
+    results = results.fetchall()
+    
+    header = [str(x) + "." + y for x,y in zip(range(1,len(cols)+1), cols)]
+    
+    print(tabulate(results,header,tablefmt="pipe",showindex=range(1,len(results)+1))) #tabulates the above things
+    mod_row = int(input("Enter the row you want to modify stuff in: "))
+    mod_col = int(input("Enter the column you want to modify in: "))
+    modification = input("Enter your modification: ")
+    
+    
+    
+    queryText = "UPDATE " + table_names[choice-1] + " SET " + cols[mod_col-1] + "="
+    
+    if type(results[0][mod_col-1]) == type(0): #if ans is integer
+        queryText += str(modification)
+    else:
+        queryText += "'" + modification + "'"
+    
+    queryText += " WHERE "
+    
+    primary_key = primary_keys[table_names[choice-1]]
+    
+    for k in primary_key:
+        queryText += k + "="
+        i = cols.index(k)
+        ans = results[mod_row-1][i]
+        if type(ans) == type(0): #if ans is integer
+            queryText += str(ans)
+        else:
+            queryText += "'" + ans + "'"
+        queryText += " AND "
+    
+    queryText += " 0=0 "
+          
+      
+    transaction = connection.begin()
+    try:
+        connection.execute(q)
+    except Exception as e:
+        print("There was an error!")
+        print(e)
+        print("Going back to the main menu")
+    finally:
+        transaction.commit()
+    
+    return choice
+    
+    
     pass
 
-def repl(connection):
+def repl(connection, engine):
 
     choice = -1
     hasDoneSomething = False
 
-    while choice != 3:
+    while choice != len(options):
         if hasDoneSomething:
             print('-' * 110)
         show_menu()
         print()
 
         try:
-            choice = int(input(f"Select a number between 1 and {num_options}: ")) 
+            choice = int(input("Select a number between 1 and " + str(num_options) +":")) 
         except:
             print("Please enter a valid number.")
             print()
@@ -161,8 +272,14 @@ def repl(connection):
             view_table(connection)
             print()
         elif choice == 2:
-            run_query(connection)
+            insert_into_table(connection, engine)
+            print()        
+        elif choice == 3:
+            delete_from_table(connection)
             print()
-        elif choice > 3 or choice < 1:
+        elif choice ==4:
+            modify_table(connection)
+            print()
+        elif choice > 5 or choice < 1:
             print("Please enter a valid number.")
             print()

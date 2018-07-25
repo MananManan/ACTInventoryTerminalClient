@@ -198,7 +198,7 @@ def insert_into_table(connection):
     
     return choice
 
-def modify_table(connection):
+def modify_table(connection, engine):
     # TODO
     choice = select_table("Which table would you like to insert into?", connection)
 
@@ -242,25 +242,20 @@ def modify_table(connection):
         queryText += " AND "
     
     queryText += " 0=0 "
-      
-    print(queryText)
 
-    transaction = connection.begin()
+    q = text(queryText)
+    
     try:
-        connection.execute(q)
+        engine.execute(q.execution_options(autocommit=True))
+        engine.execute('COMMIT')
     except Exception as e:
         print("There was an error!")
         print(e)
         print("Going back to the main menu")
-    finally:
-        transaction.commit()
     
     return choice
-    
-    
-    pass
 
-def repl(connection):
+def repl(connection, engine):
 
     choice = -1
     hasDoneSomething = False
@@ -288,6 +283,6 @@ def repl(connection):
         elif choice == 3:
             delete_from_table(connection)
         elif choice ==4:
-            modify_table(connection)
+            modify_table(connection, engine)
         elif choice > 5 or choice < 1:
             print("Please enter a valid number.")

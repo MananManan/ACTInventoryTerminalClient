@@ -117,7 +117,7 @@ def view_table(connection):
     return choice
 
 def delete_from_table(connection):
-    choice = select_table("Which table would you like to insert into?", connection)
+    choice = select_table("Which table would you like to delete from?", connection)
 
     if choice == 0:
         return
@@ -132,8 +132,10 @@ def delete_from_table(connection):
     
     print(tabulate(results,cols,tablefmt="pipe",showindex=range(1,len(results)+1))) #tabulates the above things
     
-    rowdel = input("Enter the row number you want to delete : ")
+    rowdel = input("Enter the row number you want to delete (0 to cancel) : ")
     rowdel = int(rowdel)
+    if rowdel == 0:
+        return
     queryText = "DELETE FROM " + table_names[choice-1] + " WHERE "
     
     #finding the length of primary key
@@ -179,7 +181,10 @@ def insert_into_table(connection):
     results = results.fetchall()
 
     print(tabulate(results,cols,tablefmt="pipe")) #tabulates the above things
-    insertion = input("Enter insertion in tuple format: ")
+    insertion = input("Enter insertion in tuple format (0 to cancel): ")
+    
+    if insertion == "0":
+        return
      
     q = text(
         "INSERT INTO " + table_names[choice-1] + " VALUES " + insertion    
@@ -215,9 +220,15 @@ def modify_table(connection):
     header = [str(x) + "." + y for x,y in zip(range(1,len(cols)+1), cols)]
     
     print(tabulate(results,header,tablefmt="pipe",showindex=range(1,len(results)+1))) #tabulates the above things
-    mod_row = int(input("Enter the row you want to modify stuff in: "))
-    mod_col = int(input("Enter the column you want to modify in: "))
-    modification = input("Enter your modification: ")
+    mod_row = int(input("Enter the row you want to modify stuff in (0 to cancel): "))
+    if mod_row == 0:
+        return
+    mod_col = int(input("Enter the column you want to modify in (0 to cancel): "))
+    if mod_col == 0:
+        return
+    modification = input("Enter your modification (0 to cancel): ")
+    if modification == "0":
+        return
     
        
     queryText = "UPDATE " + table_names[choice-1] + " SET " + cols[mod_col-1] + "="

@@ -131,9 +131,15 @@ def delete_from_table(connection):
     
     
     print(tabulate(results,cols,tablefmt="pipe",showindex=range(1,len(results)+1))) #tabulates the above things
+
+    rowdel = -1
     
-    rowdel = input("Enter the row number you want to delete (0 to cancel) : ")
-    rowdel = int(rowdel)
+    while rowdel < 0 or rowdel > len(results):
+        try:
+            rowdel = int(input("Enter the row number you want to delete (0 to cancel) : "))
+        except Exception as e:
+            continue
+        
     if rowdel == 0:
         return
     queryText = "DELETE FROM " + table_names[choice-1] + " WHERE "
@@ -167,6 +173,12 @@ def delete_from_table(connection):
     
     return choice
 
+def formdata(form):
+    if form == 'str':
+        return "'" + form + "'"
+    else:
+        return form
+    
 def insert_into_table(connection):
     choice = select_table("Which table would you like to insert into?", connection)
 
@@ -180,8 +192,17 @@ def insert_into_table(connection):
     cols = results.keys()
     results = results.fetchall()
 
+    form = "*** The format for insertion is ( {}".format(formdata(results[0][0].__class__.__name__))
+
+    for i in range(1,len(results[0])):
+        form += ", {}".format(formdata(results[0][i].__class__.__name__))
+    form += ") ***"
+    
+        
     print(tabulate(results,cols,tablefmt="pipe")) #tabulates the above things
-    insertion = input("Enter insertion in tuple format (0 to cancel): ")
+    print(form)
+
+    insertion = input("Enter insertion in tuple (see above) format (0 to cancel): ")
     
     if insertion == "0":
         return
@@ -205,7 +226,7 @@ def insert_into_table(connection):
 
 def modify_table(connection):
     # TODO
-    choice = select_table("Which table would you like to insert into?", connection)
+    choice = select_table("Which table would you like to modify?", connection)
 
     if choice == 0:
         return
@@ -220,13 +241,29 @@ def modify_table(connection):
     header = [str(x) + "." + y for x,y in zip(range(1,len(cols)+1), cols)]
     
     print(tabulate(results,header,tablefmt="pipe",showindex=range(1,len(results)+1))) #tabulates the above things
-    mod_row = int(input("Enter the row you want to modify stuff in (0 to cancel): "))
+    
+    mod_row = -1
+    
+    while mod_row < 0 or mod_row > len(results):
+        try:
+            mod_row = int(input("Enter the row# you want to modify (0 to cancel) : "))
+        except Exception as e:
+            continue
     if mod_row == 0:
         return
-    mod_col = int(input("Enter the column you want to modify in (0 to cancel): "))
+    
+    
+    mod_col = -1
+    
+    while mod_col < 0 or mod_col > len(cols):
+        try:
+            mod_col = int(input("Enter the col# you want to modify (0 to cancel) : "))
+        except Exception as e:
+            continue
     if mod_col == 0:
         return
-    modification = input("Enter your modification (0 to cancel): ")
+    
+    modification = input("Enter your modification (no need for quotes) (0 to cancel): ")
     if modification == "0":
         return
     

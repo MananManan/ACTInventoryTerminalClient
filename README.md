@@ -29,5 +29,3 @@ Type `pipenv shell` to start the virtual environment (venv) shell
 Run `python3 app.py` to run the program
 
 Type `exit` on the command line to exit the venv shell
-
-### Windows

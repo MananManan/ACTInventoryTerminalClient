@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Have Python 3.7 and pip installed
+Have Python 3.5 and pip3 installed
 
 Have pipenv installed
 
@@ -12,7 +12,7 @@ Have unixobdc installed on Mac
 
 ### Mac
 
-Do `brew install python3` to get Python 3 and pip
+Install Python 3.5 from the Python Foundation Website to get Python 3 and pip3
 
 Do `brew install unixodbc` to get Unix database drivers
 

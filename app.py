@@ -7,14 +7,14 @@ if __name__ == "__main__":
 
     try:
         print("Establishing connection...")
-        engine = create_engine('mssql+pymssql://inventorymgmt:angel10!@den1.mssql5.gear.host:1433/inventorymgmt')
+        engine = create_engine('mssql+pymssql://sa:Angel101@geetbabaria.ddns.net:1433/act')
         connection = engine.connect()
         engine.echo = False
         print("Connected!")
         print()
 
-        init_app(connection, engine)
-        repl(connection, engine)
+        init_app(connection)
+        repl(connection)
 
     finally:
         print("Making sure connection is closed...")
